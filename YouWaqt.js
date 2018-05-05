@@ -15,12 +15,13 @@ var rightcontrol = document.querySelector(".ytp-right-controls");
 rightcontrol.insertAdjacentHTML("beforeBegin", "<span class='ytp-time-remaining'></span>");
 
 var remainingSpan = document.querySelector(".ytp-time-remaining");
-var total = document.querySelector(".ytp-time-duration").innerHTML.split(":");
+var totalSpan = document.querySelector(".ytp-time-duration");
 var currentSpan = document.querySelector(".ytp-time-current")
 
 var observer = new MutationObserver(
 	function(){
 		var current = currentSpan.innerHTML.split(":");
+		var total = totalSpan.innerHTML.split(":");
 
 		var secs = parseInt(total[1]) - parseInt(current[1]);
 		var mins = parseInt(total[0]) - parseInt(current[0]);
@@ -29,11 +30,11 @@ var observer = new MutationObserver(
 			secs += 60;
 			mins -= 1;
 		}
-        
+
         if (secs < 20) approx = mins;
         else if (secs > 40) approx = mins + 1;
         else approx = mins + 0.5;
-		
+
 		if (mins < 10) mins = "0" + mins;
 		if (secs < 10) secs = "0" + secs;
 
