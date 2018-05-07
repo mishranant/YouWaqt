@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         YouWaqt
-// @version      2.6
+// @version      3.9
 // @description  Displays the time remaining on a YouTube video, also estimates it for your convenience.
 // @author       Yameromn
 // @match        http*://www.youtube.com/watch?v=*
@@ -8,37 +8,47 @@
 
 // ==/UserScript==
 let approx;
-var controlbar = document.querySelector(".ytp-chrome-controls");
-var leftcontrol = document.querySelector(".ytp-left-controls");
-var rightcontrol = document.querySelector(".ytp-right-controls");
+let controlbar = document.querySelector(".ytp-chrome-controls");
+let leftcontrol = document.querySelector(".ytp-left-controls");
+let rightcontrol = document.querySelector(".ytp-right-controls");
 
 rightcontrol.insertAdjacentHTML("beforeBegin", "<span class='ytp-time-remaining'></span>");
 
-var remainingSpan = document.querySelector(".ytp-time-remaining");
-var totalSpan = document.querySelector(".ytp-time-duration");
-var currentSpan = document.querySelector(".ytp-time-current")
+let remainingSpan = document.querySelector(".ytp-time-remaining");
+let totalSpan = document.querySelector(".ytp-time-duration");
+let currentSpan = document.querySelector(".ytp-time-current")
 
-var observer = new MutationObserver(
+let observer = new MutationObserver(
 	function(){
-		var current = currentSpan.innerHTML.split(":");
-		var total = totalSpan.innerHTML.split(":");
+        let extra = "";
+		let current = currentSpan.innerHTML.split(":");
+		let total = totalSpan.innerHTML.split(":");
+		let lastIndexTotal = total.length-1;
+		let lastIndexCurrent = current.length-1;
 
-		var secs = parseInt(total[1]) - parseInt(current[1]);
-		var mins = parseInt(total[0]) - parseInt(current[0]);
+		let secs = parseInt(total[lastIndexTotal]) - parseInt(current[lastIndexCurrent]);
+		let mins = parseInt(total[lastIndexTotal-1]) - parseInt(current[lastIndexCurrent-1]);
+		let hrs = (parseInt(total[lastIndexTotal-2]) || 0) - (parseInt(current[lastIndexCurrent-2]) || 0);
 
 		if (secs<0){
 			secs += 60;
 			mins -= 1;
 		}
+		if (mins<0){
+			mins += 60;
+			hrs -= 1;
+		}
 
-        if (secs < 20) approx = mins;
-        else if (secs > 40) approx = mins + 1;
-        else approx = mins + 0.5;
+        if (secs < 20) approx = 60*hrs + mins;
+        else if (secs > 40) approx = 60*hrs + mins + 1;
+        else approx = 60*hrs + mins + 0.5;
 
+        if (hrs) extra = hrs + ":";
+        if (hrs < 10) hrs = "0" + hrs;
 		if (mins < 10) mins = "0" + mins;
 		if (secs < 10) secs = "0" + secs;
 
-		remainingSpan.innerHTML = "-" + mins + ":" + secs + "    ≈ -" + approx + " mins";
+		remainingSpan.innerHTML = "-" + extra + mins + ":" + secs + " ≈ -" + approx + " mins";
 	}
 );
 
